@@ -21,6 +21,9 @@ const AGE = process.env.AGE
 async function main(){
     try {
         cron.schedule('* * * * *', async () => {
+
+            console.log('SEARCHING ......');
+
              await checkAvailability();
         });
     } catch (e) {
@@ -51,9 +54,28 @@ function getSlotsForDate(DATE) {
         .then(function (slots) {
             let sessions = slots.data.sessions;
             let validSlots = sessions.filter(slot => slot.min_age_limit <= AGE &&  slot.available_capacity > 0)
-            console.log({date:DATE, validSlots: validSlots.length})
+            // console.log({date:DATE, validSlots: validSlots.length})
+
+           
             if(validSlots.length > 0) {
-                notifyMe(validSlots, DATE);
+
+                // console.log('================= validSlots =============', validSlots);
+                // console.log('================ DATE ==============', DATE);
+
+                console.log('============ NEW DATA ======== COUNT=======', validSlots.length);
+
+                for(let center of validSlots ) {
+
+                    let {name, state_name, district_name, pincode, fee_type,
+                        date, available_capacity, min_age_limit, vaccine, slots, lat, long} = center;
+
+                        let allSlots = slots.join(" , ")
+
+                    console.log( {name, state_name, district_name, pincode, fee_type,
+                        date, available_capacity, min_age_limit, vaccine, allSlots , lat, long} );
+                }
+
+                // notifyMe(validSlots, DATE);
             }
         })
         .catch(function (error) {
@@ -85,4 +107,4 @@ async function fetchNext10Days(){
 
 
 main()
-    .then(() => {console.log('Vaccine availability checker started.');});
+    .then(() => {console.log('Vaccine availability checker started.',PINCODE);});
